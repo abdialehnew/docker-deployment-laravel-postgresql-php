@@ -1,24 +1,28 @@
 # Multi-stage build untuk Laravel dengan Nginx + PHP-FPM
-FROM php:8.3-fpm AS php-fpm
+FROM php:8.3-fpm-alpine AS php-fpm
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies untuk Alpine
+RUN apk add --no-cache \
     git \
     curl \
     libpng-dev \
-    libonig-dev \
+    oniguruma-dev \
     libxml2-dev \
     zip \
     unzip \
     libzip-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libicu-dev \
-    libpq-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    icu-dev \
+    postgresql-dev \
     postgresql-client \
+    autoconf \
+    g++ \
+    make \
+    linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_pgsql \
@@ -33,7 +37,8 @@ RUN apt-get update && apt-get install -y \
         opcache \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apk del autoconf g++ make linux-headers \
+    && rm -rf /var/cache/apk/* /tmp/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -42,10 +47,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY src/ /var/www/html
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --prefer-dist
+#RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --prefer-dist
+RUN composer update
 
 # Run post-install scripts
-RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
+#RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
 # Laravel optimization for production
 RUN php artisan config:cache || true && \
