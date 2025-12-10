@@ -1,0 +1,50 @@
+# Security
+*.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Laravel
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*
+
+# Testing
+/tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Build
+/public/hot
+/public/storage
+/public/build
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+Dockerfile.dev
+
+# CI/CD
+.github/
+.gitlab-ci.yml
