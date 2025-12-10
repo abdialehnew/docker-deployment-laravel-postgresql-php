@@ -10,7 +10,6 @@ RUN apk add --no-cache \
     curl \
     libpng-dev \
     oniguruma-dev \
-    libxml2-dev \
     zip \
     unzip \
     libzip-dev \
@@ -22,8 +21,13 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
-    linux-headers \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    linux-headers
+
+# Upgrade libxml2 untuk fix CVE
+RUN apk upgrade --no-cache libxml2 libpng
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_pgsql \
         pgsql \
@@ -93,8 +97,10 @@ RUN apk add --no-cache \
     php83-redis \
     postgresql-client \
     supervisor \
-    curl \
-    && rm -rf /var/cache/apk/*
+    curl
+
+# Upgrade libxml2 dan libpng untuk fix CVE-2025-49794, CVE-2025-49796, CVE-2025-6021, CVE-2025-49795, CVE-2025-32414, CVE-2025-64720, CVE-2025-65018, CVE-2025-66293
+RUN apk upgrade --no-cache libxml2 libpng && rm -rf /var/cache/apk/*
 
 # Copy aplikasi dari stage php-fpm
 COPY --from=php-fpm /var/www/html /var/www/html
